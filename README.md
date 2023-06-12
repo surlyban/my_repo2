@@ -1,4 +1,5 @@
-# my_repo2
+# 금융통계 기말과제
+주식 간의 일별 수익률 비교
 
       rm(list = ls(all=T))
 
@@ -141,12 +142,18 @@
              cex=1.5, lty=c(1,1), col=c("blue","red"), box.lty = 0)
 
 
+![수익률 비교](https://github.com/surlyban/my_repo2/assets/86463268/c33317cd-9dcc-44da-8551-1bf7ffad104e)
+
       dev.new()
       par(mfrow=c(2,1), mai=c(0.7,0.7,0.7,0.7))
       plot(date, biosam.rtn, pch=12, cex=0.5, col="blue", ylab="Return", xlab="")
       plot(date, samsung.rtn, pch=12, cex=0.5, col="red", ylab="Return", xlab="")
       abline(v=mean(biosam.rtn))
       abline(h=mean(samsung.rtn))
+
+
+![수익률 산점도 비교](https://github.com/surlyban/my_repo2/assets/86463268/3504c109-34e3-44a1-84bc-09e4154356cc)
+
 
       cor(biosam.rtn, samsung.rtn)
 
@@ -156,4 +163,4 @@
       dev.new()
       pairs(data, col="blue", pch=16, cex=1.25, cex.axis=1.25)
 
-
+![수익률 산점도](https://github.com/surlyban/my_repo2/assets/86463268/20bf2fb6-0a79-43f6-82d7-c6fdb3612992)
