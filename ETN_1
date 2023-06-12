@@ -1,0 +1,57 @@
+library(TTR)
+library(ggplot2)
+library(rvest)
+
+# URL for web scraping
+url <- "https://finance.naver.com/sise/etn.naver"
+
+# Parsing the web page
+page <- read_html(url, encoding = "euc-kr")
+
+# Collecting price data
+price_data <- page %>%
+  html_nodes("div[id='etn_lst'] table") %>%
+  html_table(fill = TRUE)
+
+# Data preprocessing
+price_data <- price_data[[1]] # Select the desired table
+price_data <- price_data[-1, ] # Remove the header
+colnames(price_data) <- c("Date", "Close", "Change", "Change_Rate", "Volume", "Open", "High", "Low")
+price_data <- price_data[, c("Date", "Close", "Volume")] # Select the necessary variables
+
+# Calculate moving averages
+price_data$SMA_5 <- SMA(price_data$Close, n = 5)
+price_data$SMA_20 <- SMA(price_data$Close, n = 20)
+
+# Calculate MACD
+macd_data <- MACD(price_data$Close)
+
+# Calculate RSI
+rsi_data <- RSI(price_data$Close, n = 14)
+
+# Visualization
+plot_data <- cbind(price_data, macd_data, rsi_data)
+
+ggplot(plot_data) +
+  geom_line(aes(x = Date, y = Close, color = "ETN")) +
+  geom_line(aes(x = Date, y = SMA_5, color = "SMA_5")) +
+  geom_line(aes(x = Date, y = SMA_20, color = "SMA_20")) +
+  labs(x = "Date", y = "Price", color = "Indicator") +
+  scale_color_manual(values = c("ETN" = "black", "SMA_5" = "blue", "SMA_20" = "red")) +
+  ggtitle("ETN Price and Moving Averages")
+
+ggplot(plot_data) +
+  geom_line(aes(x = Date, y = macd_data$macd, color = "MACD")) +
+  geom_line(aes(x = Date, y = macd_data$signal, color = "Signal")) +
+  geom_bar(aes(x = Date, y = macd_data$hist, fill = "Histogram")) +
+  labs(x = "Date", y = "Value", color = "Indicator", fill = "Indicator") +
+  scale_color_manual(values = c("MACD" = "blue", "Signal" = "red")) +
+  scale_fill_manual(values = "gray") +
+  ggtitle("MACD Indicator")
+
+ggplot(plot_data) +
+  geom_line(aes(x = Date, y = rsi_data, color = "RSI")) +
+  geom_hline(yintercept = c(30, 70), linetype = "dashed") +
+  labs(x = "Date", y = "Value", color = "Indicator") +
+  scale_color_manual(values = "purple") +
+  ggtitle("RSI Indicator")
