@@ -1,0 +1,75 @@
+rm(list = ls(all=T))
+
+library(TTR)
+library(ggplot2)
+library(rvest)
+
+perform_eda <- function() {
+  tryCatch({
+    etn_url <- "https://finance.naver.com/item/main.naver?code=500027"
+    
+    # Scrape the data from the specified URL
+    page <- read_html(etn_url, encoding = "euc-kr")
+    
+    # Extract the table containing ETN data
+    table_data <- page %>%
+      html_nodes(".type_1 table") %>%
+      html_table(fill = TRUE)
+    
+    # Check if ETN data is available
+    if (length(table_data) == 0) {
+      cat("No ETN data available. Exiting the program.\n")
+      return(data.frame())  # Return an empty data frame
+    }
+    
+    # Perform data preprocessing on the ETN data
+    etn_data <- table_data[[1]]
+    colnames(etn_data) <- c("Date", "Close", "Change", "Change_Rate", "Volume", "Open", "High", "Low")
+    etn_data <- etn_data[-1, c("Date", "Close", "Volume")]
+    
+    # Convert data types
+    etn_data$Date <- as.Date(etn_data$Date, format = "%Y.%m.%d")
+    etn_data$Close <- as.numeric(gsub(",", "", etn_data$Close))
+    etn_data$Volume <- as.numeric(gsub(",", "", etn_data$Volume))
+    
+    # Calculate moving averages
+    etn_data$SMA_5 <- SMA(etn_data$Close, n = 5)
+    etn_data$SMA_20 <- SMA(etn_data$Close, n = 20)
+    
+    # Calculate MACD
+    macd_data <- MACD(etn_data$Close)
+    etn_data$MACD <- macd_data$macd
+    etn_data$Signal <- macd_data$signal
+    
+    # Calculate RSI
+    etn_data$RSI <- RSI(etn_data$Close, n = 14)
+    
+    # Return the analyzed data
+    return(etn_data)
+  }, error = function(e) {
+    # Log any errors that occur
+    cat("Failed to retrieve ETN data. Exiting the program.\n")
+    return(data.frame())  # Return an empty data frame on error
+  })
+}
+
+# Call the function to retrieve ETN data
+etn_data <- perform_eda()
+
+if (!is.data.frame(etn_data) || nrow(etn_data) == 0) {
+  cat("No ETN data available. Exiting the program.\n")
+} else {
+  # Plotting the ETN data and indicators
+  ggplot(etn_data) +
+    geom_line(aes(x = Date, y = Close, color = "ETN")) +
+    geom_line(aes(x = Date, y = SMA_5, color = "SMA_5")) +
+    geom_line(aes(x = Date, y = SMA_20, color = "SMA_20")) +
+    geom_line(aes(x = Date, y = MACD, color = "MACD")) +
+    geom_line(aes(x = Date, y = Signal, color = "Signal")) +
+    geom_line(aes(x = Date, y = RSI, color = "RSI")) +
+    labs(x = "Date", y = "Value", color = "Indicator") +
+    scale_color_manual(values = c("ETN" = "black", "SMA_5" = "blue", "SMA_20" = "red",
+                                  "MACD" = "green", "Signal" = "orange", "RSI" = "purple")) +
+    ggtitle("ETN Analysis") +
+    facet_wrap(~ Date, nrow = 1)
+}
