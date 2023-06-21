@@ -1,0 +1,413 @@
+rm(list = ls(all=T))
+
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(tidyverse)
+library(ggplot2)
+library(tidyquant)
+library(timetk)
+library(forcats)
+library(stringr)
+library(gganimate)
+library(plyr)
+library(gridExtra)
+library(gifski)
+library(transformr)
+
+url <- "https://api.finance.naver.com/siseJson.naver?symbol=005930&requestType=1&startTime=20220101&endTime=20221231&timeframe=day"
+
+data <- readLines(url, warn = FALSE)
+
+data2 <- 
+  gsub("\t|\\[|\\]","",data) |> 
+  strsplit(", ")
+
+column_names <- 
+  data2[[2]] |> 
+  trimws() |> 
+  str_remove_all("'")
+
+data3 <- 
+  data2[-2]
+
+data4 <- 
+  data3[lengths(data3) != 0]
+
+data5 <-lapply(data4,
+               setNames,
+               column_names) |> 
+  bind_rows() |> 
+  mutate(날짜 = str_remove_all(날짜, "\\\""))
+
+data5$날짜 <- ymd(data5$날짜)
+
+Samsung <- data5
+
+url <- "https://api.finance.naver.com/siseJson.naver?symbol=030200&requestType=1&startTime=20220101&endTime=20221231&timeframe=day"
+
+data <- readLines(url, warn = FALSE)
+
+data2 <- 
+  gsub("\t|\\[|\\]","",data) |> 
+  strsplit(", ")
+
+column_names <- 
+  data2[[2]] |> 
+  trimws() |> 
+  str_remove_all("'")
+
+data3 <- 
+  data2[-2]
+
+data4 <- 
+  data3[lengths(data3) != 0]
+
+data5 <-lapply(data4,
+               setNames,
+               column_names) |> 
+  bind_rows() |> 
+  mutate(날짜 = str_remove_all(날짜, "\\\""))
+
+data5$날짜 <- ymd(data5$날짜)
+
+KT <- data5
+
+url <- "https://api.finance.naver.com/siseJson.naver?symbol=000660&requestType=1&startTime=20220101&endTime=20221231&timeframe=day"
+
+data <- readLines(url, warn = FALSE)
+
+data2 <- 
+  gsub("\t|\\[|\\]","",data) |> 
+  strsplit(", ")
+
+column_names <- 
+  data2[[2]] |> 
+  trimws() |> 
+  str_remove_all("'")
+
+data3 <- 
+  data2[-2]
+
+data4 <- 
+  data3[lengths(data3) != 0]
+
+data5 <-lapply(data4,
+               setNames,
+               column_names) |> 
+  bind_rows() |> 
+  mutate(날짜 = str_remove_all(날짜, "\\\""))
+
+data5$날짜 <- ymd(data5$날짜)
+
+SK_highnicks <- data5
+
+url <- "https://api.finance.naver.com/siseJson.naver?symbol=010950&requestType=1&startTime=20220101&endTime=20221231&timeframe=day"
+
+data <- readLines(url, warn = FALSE)
+
+data2 <- 
+  gsub("\t|\\[|\\]","",data) |> 
+  strsplit(", ")
+
+column_names <- 
+  data2[[2]] |> 
+  trimws() |> 
+  str_remove_all("'")
+
+data3 <- 
+  data2[-2]
+
+data4 <- 
+  data3[lengths(data3) != 0]
+
+data5 <-lapply(data4,
+               setNames,
+               column_names) |> 
+  bind_rows() |> 
+  mutate(날짜 = str_remove_all(날짜, "\\\""))
+
+data5$날짜 <- ymd(data5$날짜)
+
+s_oil <- data5
+
+url <- "https://api.finance.naver.com/siseJson.naver?symbol=035720&requestType=1&startTime=20220101&endTime=20221231&timeframe=day"
+
+data <- readLines(url, warn = FALSE)
+
+data2 <- 
+  gsub("\t|\\[|\\]","",data) |> 
+  strsplit(", ")
+
+column_names <- 
+  data2[[2]] |> 
+  trimws() |> 
+  str_remove_all("'")
+
+data3 <- 
+  data2[-2]
+
+data4 <- 
+  data3[lengths(data3) != 0]
+
+data5 <-lapply(data4,
+               setNames,
+               column_names) |> 
+  bind_rows() |> 
+  mutate(날짜 = str_remove_all(날짜, "\\\""))
+
+data5$날짜 <- ymd(data5$날짜)
+
+KAKAO <- data5
+
+url <- "https://api.finance.naver.com/siseJson.naver?symbol=000270&requestType=1&startTime=20220101&endTime=20221231&timeframe=day"
+
+data <- readLines(url, warn = FALSE)
+
+data2 <- 
+  gsub("\t|\\[|\\]","",data) |> 
+  strsplit(", ")
+
+column_names <- 
+  data2[[2]] |> 
+  trimws() |> 
+  str_remove_all("'")
+
+data3 <- 
+  data2[-2]
+
+data4 <- 
+  data3[lengths(data3) != 0]
+
+data5 <-lapply(data4,
+               setNames,
+               column_names) |> 
+  bind_rows() |> 
+  mutate(날짜 = str_remove_all(날짜, "\\\""))
+
+data5$날짜 <- ymd(data5$날짜)
+
+KIA <- data5
+
+Samsung
+SK_highnicks
+KAKAO
+KIA
+s_oil
+KT
+
+summary(Samsung)
+
+stock_data <- function(stock_name){
+  
+  stock_name$시가<-as.numeric(stock_name$시가)
+  stock_name$고가<-as.numeric(stock_name$고가)
+  stock_name$저가<-as.numeric(stock_name$저가)
+  stock_name$종가<-as.numeric(stock_name$종가)
+  stock_name$거래량<-as.numeric(stock_name$거래량)
+  return(stock_name)
+}
+
+
+Samsung <- stock_data(Samsung)
+KAKAO <- stock_data(KAKAO)
+KT <- stock_data(KT)
+KIA <- stock_data(KIA)
+s_oil <- stock_data(s_oil)
+SK_highnicks <- stock_data(SK_highnicks)
+
+
+Samsung<-cbind(Samsung,Stock="")
+KT<-cbind(KT,Stock="")
+SK_highnicks<-cbind(SK_highnicks,Stock="")
+s_oil<-cbind(s_oil,Stock="")
+KAKAO<-cbind(KAKAO,Stock="")
+KIA<-cbind(KIA,Stock="")
+
+## Paste the stock name in stock column
+
+Samsung$Stock<-paste(Samsung$Stock,"Samsung", sep="")
+KT$Stock<-paste(KT$Stock,"KT",sep="")
+SK_highnicks$Stock<-paste(SK_highnicks$Stock,"SK_highnicks",sep="")
+s_oil$Stock<-paste(s_oil$Stock,"s_oil",sep="")
+KAKAO$Stock<-paste(KAKAO$Stock,"KAKAO",sep="")
+KIA$Stock<-paste(KIA$Stock,"KIA",sep="")
+
+## Consoli날짜 under one dataset
+
+Master_Data<-rbind(Samsung,KT,SK_highnicks,s_oil,KAKAO,KIA)
+
+Master_Data
+
+## Visualisation in ggplot2 ("Comparative Visulisation of Close Price listed on NSE")
+
+## Convert the 날짜s into character in order to split the coloumn into "Y" "m" "dd"" columns
+Master_Data$날짜<-as.character(Master_Data$날짜)
+
+## Split the 날짜 and create a list for the same
+
+list<-strsplit(Master_Data$날짜,"-")
+
+## Convert the list into dataframe
+Master_날짜1<-ldply(list)
+colnames(Master_날짜1)<-c("Year","Month","Day")
+
+## Column bind with the main dataframe
+Master_Data<-cbind(Master_Data,Master_날짜1)
+names(Master_Data)
+
+## Change the scale for Traded Quantity
+
+Master_Data$거래량<-Master_Data$거래량/100000
+Master_Data$종가<-Master_Data$종가/100
+
+## Convert the 날짜 to as.날짜()
+
+Master_Data$날짜<-as.Date(Master_Data$날짜)
+
+## Visualisation with Bubble Plot
+
+summary(Master_Data)
+
+# Bubble Plot으로 시각화
+P <- ggplot(Master_Data, aes(factor(Stock), `종가`, color = Stock, frame = Month)) +
+  geom_point(aes(size = `종가`, colour = Stock, alpha = 0.3), position = "jitter") +
+  ylim(0, 4000) +
+  labs(title = "주식 월별 가격", x = "회사", y = "종가/100") +
+  theme(panel.border = element_blank(),
+        panel.grid.major = element_line(colour = "grey61", size = 0.5, linetype = "dotted"),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5, size = 35, colour = "indianred4"),
+        legend.position = "none",
+        axis.title.x = element_text(size = 20),
+        axis.title.y = element_text(size = 20))
+
+# 애니메이션 생성
+P1 <- P + transition_states(Month, transition_length = 1, state_length = 1) +
+  enter_fade() +
+  exit_shrink() +
+  labs(title = "주식 월별 가격: {closest_state}") +
+  view_follow(fixed_y = TRUE)
+
+animate(P1, width = 1200, height = 800, fps = 5, renderer = gifski_renderer('Price_Range.gif'))
+
+
+
+## Group By Stock
+
+Master_Data<-Master_Data%>%
+  tibble::as.tibble()%>%
+  group_by(Stock)
+
+## Visualisation for Daily Stock Prices
+
+dev.new()
+Master_Data %>%
+  ggplot(aes(x = 날짜, y = 종가, color = Stock)) +
+  geom_point() +
+  labs(title = "일일 마감 가격", x = "월별", y = "종가") +
+  facet_wrap(~ Stock, ncol = 3, scales = "free_y") +
+  scale_fill_tq(fill = "green4", theme = "light") +
+  theme_tq() +
+  theme(panel.border = element_blank(),
+        panel.grid.major = element_line(colour = "grey61", size = 0.5, linetype = "dotted"),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5, size = 18, colour = "indianred4")) +
+  theme(legend.position = "none")
+
+
+z <- Master_Data %>%
+  ggplot(aes(x = 거래량, y = 종가, color = Stock, frame = Month)) +
+  geom_smooth(method = 'loess') +
+  xlim(0, 400) +
+  labs(title = "월간 거래량 대 가격", x = "거래량 (Lacs)", y = "종가") +
+  facet_wrap(~ Stock, ncol = 3, scales = "free_y") +
+  scale_fill_tq(fill = "green4", theme = "light") +
+  theme_tq() +
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 18, colour = "indianred4"),
+        axis.line = element_line(colour = "black")) +
+  theme(legend.position = "none")
+
+# 애니메이션 생성
+z1 <- z + transition_states(Month, transition_length = 1, state_length = 1) +
+  enter_fade() +
+  exit_shrink() +
+  labs(title = "월간 거래량 대 가격: {closest_state}") +
+  view_follow(fixed_y = TRUE)
+
+animate(z1, width = 1200, height = 800, fps = 8, renderer = gifski_renderer('Quantity_Price.gif'))
+
+## Deviation from High & Low Price
+Master_Data_High<-Master_Data%>%mutate(Dev_고가=고가-시가)
+Master_Data_Low<-Master_Data%>%mutate(Dev_저가=시가-저가)
+
+## Computation of weekly average for high Price
+
+Master_Data_High_Week <- Master_Data_High %>%
+  tq_transmute(
+    select     = Dev_고가,
+    mutate_fun = apply.weekly, 
+    FUN        = mean,
+    na.rm      = TRUE,
+    col_rename = "Dev_High_Mean"
+  )
+
+## Computation weekly average for Low Price
+
+Master_Data_Low_Week<-Master_Data_Low%>%
+  tq_transmute(
+    select  = Dev_저가,
+    mutate_fun = apply.weekly,
+    FUN = mean,
+    na.rm = TRUE,
+    col_rename = "Dev_Low_Mean"
+  )
+
+Master_Data_High_Week$Dev_High_Mean.1 <- Master_Data_High_Week$Dev_High_Mean/100
+Master_Data_Low_Week$Dev_Low_Mean.1 <- Master_Data_Low_Week$Dev_Low_Mean/100
+
+## Visualisation of density distribution of High Price
+dev.new()
+High <- Master_Data_High_Week %>%
+  ggplot(aes(x = Dev_High_Mean.1, fill = Stock)) +
+  geom_dotplot(binwidth = 0.5, aes(y = ..count..)) +
+  xlim(0,10) +
+  scale_fill_manual(values = c("#999999", "#E69F00", "#CC9933", "#99FF00", "#CC3399", "#FF9933")) +
+  labs(title = "시가 대비 주간 최고가 편차 분포", x = "주간 평균 변동") +
+  facet_wrap(~ Stock, ncol = 3, scales = "free_y") +
+  scale_color_tq(values = c("#999999")) +
+  theme_tq() +
+  theme(
+    panel.border = element_blank(),
+    panel.grid.major = element_line(colour = "grey61", size = 0.5, linetype = "dotted"),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black"),
+    plot.title = element_text(hjust = 0.5, size = 16, colour = "indianred4"),
+    legend.position = "none"
+  )
+
+Low <- Master_Data_Low_Week %>%
+  ggplot(aes(x = Dev_Low_Mean.1, fill = Stock)) +
+  geom_dotplot(binwidth = 0.5, aes(y = ..count..)) +
+  xlim(0,10)+
+  scale_fill_manual(values = c("#999999", "#E69F00", "#CC9933", "#99FF00", "#CC3399", "#FF9933")) +
+  labs(title = "시가 대비 주간 최저가 편차 분포", x = "주간 평균 변동") +
+  facet_wrap(~ Stock, ncol = 3, scales = "free_y") +
+  scale_color_tq(values = c("#999999")) +
+  theme_tq() +
+  theme(
+    panel.border = element_blank(),
+    panel.grid.major = element_line(colour = "grey61", size = 0.5, linetype = "dotted"),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black"),
+    plot.title = element_text(hjust = 0.5, size = 16, colour = "indianred4"),
+    legend.position = "none"
+  )
+
+## Arrange
+grid.arrange(High, Low, ncol = 2, nrow = 1)
